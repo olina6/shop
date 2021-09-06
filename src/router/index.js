@@ -23,12 +23,6 @@ const routes = [
     beforeEnter (to, from, next) {
       const { isLogin } = localStorage
       isLogin ? next({ name: 'Home' }) : next()
-      // const isLogin = localStorage.isLogin
-      // if (isLogin) {
-      //   next({ name: 'home' })
-      // } else {
-      //   next()
-      // }
     }
   }
   // {

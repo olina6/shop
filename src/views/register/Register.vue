@@ -2,33 +2,79 @@
   <div class="wrapper">
     <img class="wrapper_img" src="http://www.dell-lee.com/imgs/vue3/user.png" />
     <div class="wrapper_input">
-      <input class="wrapper_input_content" placeholder="example@mail.com"/>
+      <input class="wrapper_input_content"
+             placeholder="example@mail.com"
+             v-model="email"
+      />
     </div>
     <div class="wrapper_input">
       <input class="wrapper_input_content"
              placeholder="password"
              type="password"
+             autocomplete="new-password"
+             v-model="password"
       />
     </div>
     <div class="wrapper_input">
-    <input class="wrapper_input_content"
-           placeholder="confirm password"
-           type="password"/>
-  </div>
-    <div class="wrapper_register-button"> Register </div>
-    <div class="wrapper_register-link" @click="handleLoginClick"> Already Register </div>
+      <input class="wrapper_input_content"
+             placeholder="confirm password"
+             type="password"
+             autocomplete="new-password"
+             v-model="confirmPassword"
+      />
+    </div>
+    <div class="wrapper_register-button" @click="handleRegister"> Register </div>
+    <div class="wrapper_register-link"  @click="handleLoginClick"> Already Register </div>
+    <Toast v-if="show" :message="toastMessage"/>
   </div>
 </template>
+
 <script>
+import { reactive, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
+import { post } from '@/utils/request'
+import Toast, { useToastEffect } from '@/components/Toast'
+
+// Registration related logic
+const useRegisterEffect = (showToast) => {
+  const router = useRouter()
+  const data = reactive({ email: '', password: '', confirmPassword: '' })
+  const handleRegister = async () => {
+    try {
+      const result = await post('/api/user/register', {
+        email: data.email,
+        password: data.password
+      })
+      if (result?.errno === 0) {
+        router.push({ name: 'Login' })
+      } else {
+        showToast('Register failed')
+      }
+    } catch (e) {
+      showToast('request failed')
+    }
+  }
+  const { email, password, confirmPassword } = toRefs(data)
+  return { email, password, confirmPassword, handleRegister }
+}
+
+// process 'Already Register' link, redirect to login page
+const useLoginEffect = () => {
+  const router = useRouter()
+  const handleLoginClick = () => {
+    router.push({ name: 'Login' })
+  }
+  return { handleLoginClick }
+}
+
 export default {
   name: 'Register',
+  components: { Toast },
   setup () {
-    const router = useRouter()
-    const handleLoginClick = () => {
-      router.push({ name: 'Login' })
-    }
-    return { handleLoginClick }
+    const { show, toastMessage, showToast } = useToastEffect()
+    const { email, password, confirmPassword, handleRegister } = useRegisterEffect(showToast) // confirmPassword
+    const { handleLoginClick } = useLoginEffect()
+    return { email, password, show, toastMessage, confirmPassword, handleRegister, handleLoginClick } // confirmPassword,
   }
 }
 </script>

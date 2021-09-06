@@ -4,58 +4,70 @@
     <div class="wrapper_input">
       <input class="wrapper_input_content"
              placeholder="example@mail.com"
-             v-model="data.email"
+             v-model="email"
       />
     </div>
     <div class="wrapper_input">
       <input class="wrapper_input_content"
              placeholder="password"
              type="password"
-             v-model="data.password"
+             v-model="password"
+             autocomplete="new-password"
       />
     </div>
     <div class="wrapper_login-button" @click="handleLogin"> Login </div>
     <div class="wrapper_login-link" @click="handleRegisterClick"> Register </div>
+    <Toast v-if="show" :message="toastMessage"/>
   </div>
 </template>
 <script>
+import { reactive, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
-import { reactive } from 'vue'
 import { post } from '@/utils/request'
+import Toast, { useToastEffect } from '@/components/Toast'
+
+// Login
+const useLoginEffect = (showToast) => {
+  const router = useRouter()
+  const data = reactive({ email: '', password: '' })
+  const handleLogin = async () => {
+    try {
+      const result = await post('/api/user/login', {
+        email: data.email,
+        password: data.password
+      })
+      if (result?.errno === 0) {
+        localStorage.isLogin = true
+        router.push({ name: 'Home' })
+      } else {
+        showToast('login failed')
+      }
+    } catch (e) {
+      showToast('request failed')
+    }
+  }
+  const { email, password } = toRefs(data)
+  return { email, password, handleLogin }
+}
+
+// redirect to register page
+const useRegisterEffect = () => {
+  const router = useRouter()
+  const handleRegisterClick = () => {
+    router.push({ name: 'Register' })
+  }
+  return { handleRegisterClick }
+}
+
 export default {
   name: 'Login',
+  components: { Toast },
+  // setup focus on Login Process
   setup () {
-    const data = reactive({
-      username: '',
-      password: ''
-    })
-    const router = useRouter()
-    const handleLogin = async () => {
-      try {
-        const result = await post('/api/user/login', {
-          username: data.email,
-          password: data.password
-        })
-        if (result?.errno === 0) {
-          localStorage.isLogin = true
-          router.push({ name: 'Home' })
-        } else {
-          alert('failed')
-        }
-      } catch (e) {
-        alert('failed request')
-      }
-      //   .then(() => {
-      //   localStorage.isLogin = true
-      //   router.push({ name: 'Home' })
-      // }).catch(() => {
-      //   alert('failed')
-      // })
-    }
-    const handleRegisterClick = () => {
-      router.push({ name: 'Register' })
-    }
-    return { handleLogin, handleRegisterClick, data }
+    const { show, toastMessage, showToast } = useToastEffect()
+    const { email, password, handleLogin } = useLoginEffect(showToast)
+    const { handleRegisterClick } = useRegisterEffect()
+    return { email, password, show, toastMessage, handleLogin, handleRegisterClick }
   }
 }
 </script>

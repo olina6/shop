@@ -3,45 +3,41 @@
     <h3 class="nearby_title">Nearby Market</h3>
     <div class="nearby_item"
          v-for="item in nearbyList"
-         :key="item.id"
+         :key="item._id"
     >
       <img :src="item.imgUrl" class="nearby_item_img">
       <div class="nearby_content">
-        <div class="nearby_content_title">{{ item.title }}</div>
+        <div class="nearby_content_title">{{ item.name }}</div>
         <div class="nearby_content_tags">
-          <span
-            class="nearby_content_tag"
-            v-for="(innerItem,index) in item.tags"
-            :key = "index">{{ innerItem }}</span>
-        </div>
-        <p class="nearby_content_highlight">{{item.desc}}</p>
+          <span class="nearby_content_tag"> Sales:{{item.sales}} </span>
+          <span class="nearby_content_tag"> Minimum delivery items: {{item.expressLimit}} </span>
+          <span class="nearby_content_tag"> Free Delivery over: ${{item.expressPrice}} </span>
+        <p class="nearby_content_highlight">{{item.slogan}}</p>
       </div>
     </div>
   </div>
+  </div>
 </template>
 <script>
+import { ref } from 'vue'
+import { get } from '@/utils/request'
+
+const useNearByListEffect = () => {
+  const nearbyList = ref([])
+  const getNearByList = async () => {
+    const result = await get('/api/shop/hot-list')
+    console.log(result)
+    if (result?.errno === 0 && result?.data?.length) {
+      nearbyList.value = result.data
+    }
+  }
+  return { nearbyList, getNearByList }
+}
 export default {
   name: 'Nearby',
   setup () {
-    const nearbyList = [{
-      id: 1,
-      imgUrl: 'http://www.dell-lee.com/imgs/vue3/near.png',
-      title: 'CountDown',
-      tags: ['Sales:10000+', 'Free shipping over $25', 'clearance'],
-      desc: 'REE Shipping on qualifying orders over $25.'
-    }, {
-      id: 2,
-      imgUrl: 'http://www.dell-lee.com/imgs/vue3/near.png',
-      title: 'ParkSave',
-      tags: ['Sales:9000+', 'Free shipping over $10', 'clearance'],
-      desc: 'REE Shipping on qualifying orders over $10.'
-    }, {
-      id: 3,
-      imgUrl: 'http://www.dell-lee.com/imgs/vue3/near.png',
-      title: 'NZSale',
-      tags: ['Sales:15000+', 'Free shipping over $50', 'clearance'],
-      desc: 'REE Shipping on qualifying orders over $50.'
-    }]
+    const { nearbyList, getNearByList } = useNearByListEffect()
+    getNearByList()
     return { nearbyList }
   }
 }

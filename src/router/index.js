@@ -1,17 +1,21 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from '@/views/home/Home'
-import Login from '@/views/login/Login'
-import Register from '@/views/register/Register'
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    // if using "import Login from '@/views/login/Login'" in the top of file, it will be load all of code that imported
+    // like load all of Home shop login register code
+    // use component: () => import('@/views/home/Home') it only load the code of page that it need it
+    component: () => import(/* webpackChunkName: "home" */ '@/views/home/Home')
+  }, {
+    path: '/shop',
+    name: 'Shop',
+    component: () => import(/* webpackChunkName: "home" */ '@/views/shop/Shop')
   }, {
     path: '/register',
     name: 'Register',
-    component: Register,
+    component: () => import(/* webpackChunkName: "home" */ '@/views/register/Register'),
     beforeEnter (to, from, next) {
       const { isLogin } = localStorage
       isLogin ? next({ name: 'Home' }) : next()
@@ -19,7 +23,7 @@ const routes = [
   }, {
     path: '/login',
     name: 'Login',
-    component: Login,
+    component: () => import(/* webpackChunkName: "home" */ '@/views/login/Login'),
     beforeEnter (to, from, next) {
       const { isLogin } = localStorage
       isLogin ? next({ name: 'Home' }) : next()

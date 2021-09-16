@@ -9,7 +9,7 @@ const routes = [
     // use component: () => import('@/views/home/Home') it only load the code of page that it need it
     component: () => import(/* webpackChunkName: "home" */ '@/views/home/Home')
   }, {
-    path: '/shop',
+    path: '/shop/:id',
     name: 'Shop',
     component: () => import(/* webpackChunkName: "home" */ '@/views/shop/Shop')
   }, {

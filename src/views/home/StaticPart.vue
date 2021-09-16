@@ -20,19 +20,9 @@
          :key = item.desc>
       <img
         class="icons_item_img"
-        :src="`@/src/assets/`+{item}+`.png`"
-        alt=""
-      />
-      <img
-        class="icons_item_img"
         :src="`http://www.dell-lee.com/imgs/vue3/${item.imgName}.png`" alt=""/>
       <p class="icons_item_desc">{{ item.desc }}</p>
     </div>
-    <!-- <img
-        class="icons_item_img"
-        :src="`../../assets/${item.imgName}.png`"/>
-    <img class="icons_item_img"
-         src="../../assets/supermarket.png"/>-->
   </div>
   <div class="gap"></div>
 </template>
@@ -41,6 +31,16 @@ export default {
   name: 'StaticPart',
   setup () {
     const iconsList = [{
+      imgName: '超市', desc: 'Market'
+    }, {
+      imgName: '超市', desc: 'Market'
+    }, {
+      imgName: '超市', desc: 'Market'
+    }, {
+      imgName: '超市', desc: 'Market'
+    }, {
+      imgName: '超市', desc: 'Market'
+    }, {
       imgName: '超市', desc: 'Market'
     }, {
       imgName: '超市', desc: 'Market'
@@ -81,8 +81,8 @@ export default {
   padding: 0 .12rem 0 .16rem;
   margin-bottom: .12rem;
   line-height: .32rem;
-  background-color: #f5f5f5;
-  color: #b7b7b7;
+  background-color: $search-bgColor;
+  color: $search-fontColor;
   border-radius: .16rem;
   font-size: .14rem;
   .iconfont{

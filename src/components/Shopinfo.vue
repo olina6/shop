@@ -1,13 +1,15 @@
 <template>
   <div class="shop">
     <img :src="item.imgUrl" class="shop_img">
-    <div class="shop_content">
+    <div class="shop_content"
+         :class="{'shop_content':true,'shop_content--bordered':hideBorder?false:true}"
+    >
       <div class="shop_content_title">{{ item.name }}</div>
       <div class="shop_content_tags">
         <span class="shop_content_tag"> Sales:{{item.sales}} </span>
-        <span class="shop_content_tag"> Minimum delivery items: {{item.expressLimit}} </span>
-        <span class="shop_content_tag"> Free Delivery over: ${{item.expressPrice}} </span>
-        <p class="shop_content_highlight">{{item.slogan}}</p>
+        <span class="shop_content_tag"> Mini Spend: {{item.expressLimit}} </span>
+        <div class="shop_content_tag"> Free Delivery Over: ${{item.expressPrice}} </div>
+        <div class="shop_content_highlight">{{item.slogan}}</div>
       </div>
     </div>
   </div>
@@ -16,7 +18,7 @@
 <script>
 export default {
   name: 'ShopInfo',
-  props: ['item'] // Receive data from the parent component, then can use 'item' in template
+  props: ['item', 'hideBorder'] // Receive data from the parent component, then can use 'item' in template
 }
 </script>
 
@@ -33,8 +35,9 @@ export default {
   &_content {
     flex: 1;
     padding-bottom: .12rem;
-    border-bottom: 1px solid $content-bgColor;
-
+    &--bordered{
+      border-bottom: 1px solid $content-bgColor;
+    }
     &_title {
       line-height: .22rem;
       font-size: .16rem;
@@ -55,7 +58,7 @@ export default {
     &_highlight {
       line-height: .18rem;
       font-size: .13rem;
-      color: #e93b3b;
+      color: $highlight-fontColor;
     }
   }
 }

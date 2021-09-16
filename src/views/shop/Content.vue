@@ -2,12 +2,11 @@
   <div class="content">
     <div class="category">
       <ul
-        :class="{'category_item':true, 'category_item--active': currentTab === item.name}"
+        :class="{'category_item':true, 'category_item--active': currentTab === item.tab}"
         v-for="item in categories"
         :key="item.name"
         @click="() => handleCategoryClick(item.tab)"
       >
-        <li>{{currentTab}}</li>
         <li>{{item.name}}</li>
       </ul>
     </div>

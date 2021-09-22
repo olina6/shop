@@ -19,7 +19,7 @@ import ShopInfo from '@/components/Shopinfo'
 const useNearByListEffect = () => {
   const nearbyList = ref([])
   const getNearByList = async () => {
-    const result = await get('/api/shop/hot-list')
+    const result = await get('/api/shop/store-list')
     console.log(result)
     if (result?.errno === 0 && result?.data?.length) {
       nearbyList.value = result.data
@@ -39,7 +39,6 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import 'src/style/variables.scss';
-//@import 'src/style/mixins.scss';
 .nearby{
   &_title{
     margin: .16rem 0 .02em 0;

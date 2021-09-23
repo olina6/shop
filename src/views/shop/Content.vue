@@ -16,7 +16,7 @@
         v-for="item in list"
         :key="item._id"
       >
-        <img class="product_item_img" src="http://www.dell-lee.com/imgs/vue3/near.png" alt=""/>
+        <img class="product_item_img" :src="item.imgUrl" alt=""/>
         <div class="product_item_detail">
           <h4 class="product_item_title">{{item.name}}</h4>
           <p class="product_item_sales">sales:{{ item.sales }}</p>
@@ -27,9 +27,15 @@
           </p>
         </div>
         <div class="product_number">
-          <span class="product_number_minus">-</span>
-          0
-          <span class="product_number_plus">+</span>
+          <span
+            class="product_number_minus"
+            @click="() => { changeCartItemInfo(shopId,item._id,item, -1) }"
+          >-</span>
+          {{cartList?.[shopId]?.[item._id]?.count || 0}}
+          <span
+            class="product_number_plus"
+            @click="() => { changeCartItemInfo(shopId,item._id,item,1) }"
+          >+</span>
         </div>
       </div>
     </div>
@@ -39,6 +45,7 @@
 import { reactive, ref, toRefs, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import { get } from '@/utils/request'
+import { useStore } from 'vuex'
 
 const categories = [
   { name: 'All Products', tab: 'all' },
@@ -46,7 +53,7 @@ const categories = [
   { name: 'Fruits', tab: 'fruit' }
 ]
 
-// Switch Tab
+// logic -- Switch Tab
 const useTabEffect = () => {
   const currentTab = ref(categories[0].tab)
   const handleTabClick = (tab) => {
@@ -56,9 +63,7 @@ const useTabEffect = () => {
 }
 
 // logic -- content of list
-const useCurrentListEffect = (currentTab) => {
-  const route = useRoute()
-  const shopId = route.params.id
+const useCurrentListEffect = (currentTab, shopId) => {
   const content = reactive({ list: [] })
 
   // Get list content
@@ -74,12 +79,26 @@ const useCurrentListEffect = (currentTab) => {
   const { list } = toRefs(content)
   return { list }
 }
+
+// logic of Cart
+const useCartEffect = () => {
+  const store = useStore()
+  const { cartList } = toRefs(store.state)
+  const changeCartItemInfo = (shopId, productId, productInfo, num) => {
+    store.commit('changeCartItemInfo', { shopId, productId, productInfo, num })
+  }
+  return { cartList, changeCartItemInfo }
+}
+
 export default {
   name: 'Content',
   setup () {
+    const route = useRoute()
+    const shopId = route.params.id
     const { currentTab, handleTabClick } = useTabEffect()
-    const { list } = useCurrentListEffect(currentTab)
-    return { list, categories, currentTab, handleTabClick }
+    const { list } = useCurrentListEffect(currentTab, shopId)
+    const { cartList, changeCartItemInfo } = useCartEffect()
+    return { list, categories, currentTab, cartList, shopId, handleTabClick, changeCartItemInfo }
   }
 }
 </script>

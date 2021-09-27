@@ -5,6 +5,7 @@ export default createStore({
     cartList: { }
   },
   mutations: {
+    // change number of products by clicking + -
     changeCartItemInfo (state, payload) {
       const { shopId, productId, productInfo } = payload
       let shopInfo = state.cartList[shopId]

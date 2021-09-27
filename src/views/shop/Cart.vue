@@ -1,5 +1,34 @@
 <template>
   <div class="cart">
+    <div class="product">
+      <template
+        v-for="item in productList"
+        :key="item._id"
+      >
+        <div class="product_item" v-if="item.count >0">
+          <img class="product_item_img" :src="item.imgUrl" alt=""/>
+          <div class="product_item_detail">
+            <h4 class="product_item_title">{{item.name}}</h4>
+            <p class="product_item_price">
+              <span class="product_item_dollar">&#36;</span>
+              {{ item.price }}
+              <span class="product_item_origin">&#36;{{ item.oldPrice }}</span>
+            </p>
+          </div>
+          <div class="product_number">
+          <span
+            class="product_number_minus"
+            @click="() => { changeCartItemInfo(shopId,item._id,item, -1) }"
+          >-</span>
+            {{item.count || 0}}
+            <span
+              class="product_number_plus"
+              @click="() => { changeCartItemInfo(shopId,item._id,item,1) }"
+            >+</span>
+          </div>
+        </div>
+      </template>
+    </div>
     <div class="check">
       <div class="icon">
         <img
@@ -22,13 +51,13 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
+import { useCommonCartEffect } from '@/views/shop/commonCartEffect'
 
 // get cart information
-const useCartEffect = () => {
+const useCartEffect = (shopId) => {
   const store = useStore()
-  const route = useRoute()
-  const shopId = route.params.id
   const cartList = store.state.cartList
+
   const total = computed(() => {
     const productList = cartList[shopId]
     let count = 0
@@ -40,6 +69,7 @@ const useCartEffect = () => {
     }
     return count
   })
+
   const price = computed(() => {
     const productList = cartList[shopId]
     let count = 0
@@ -51,14 +81,22 @@ const useCartEffect = () => {
     }
     return count.toFixed(2)
   })
-  return { total, price }
+
+  const productList = computed(() => {
+    const productList = cartList[shopId] || []
+    return productList
+  })
+  return { total, price, productList }
 }
 
 export default {
   name: 'Cart',
   setup () {
-    const { total, price } = useCartEffect()
-    return { total, price }
+    const route = useRoute()
+    const shopId = route.params.id
+    const { changeCartItemInfo } = useCommonCartEffect()
+    const { total, price, productList } = useCartEffect(shopId)
+    return { total, price, productList, shopId, changeCartItemInfo }
   }
 }
 
@@ -66,6 +104,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/style/variables.scss";
+@import "src/style/mixins.scss";
 .cart{
   position: absolute;
   right: 0;
@@ -117,6 +156,83 @@ export default {
     text-align: center;
     color:#fff;
     font-size: .14rem;
+  }
+}
+.product {
+  overflow-y: scroll;
+  flex: 1;
+  background: $bgColor;
+
+  &_item {
+    position: relative;
+    display: flex;
+    padding: .12rem 0;
+    margin: 0 .16rem;
+    border-bottom: .01rem solid $content-bgColor;
+
+    &_img {
+      margin-right: .16rem;
+      height: .46rem;
+      width: .46rem;
+    }
+
+    &_detail {
+      overflow: hidden;
+    }
+
+    &_title {
+      margin: 0;
+      line-height: .2rem;
+      font-size: .14rem;
+      color: $content-fontcolor;
+      @include ellipsis;
+    }
+    &_dollar {
+      font-size: .12rem;
+    }
+
+    &_price {
+      margin: .06rem 0 0 0;
+      line-height: .2rem;
+      font-size: .14rem;
+      color: $highlight-fontColor;
+    }
+
+    &_origin {
+      margin-left: 0.06rem;
+      line-height: .2rem;
+      font-size: .12rem;
+      color: $light-fontColor;
+      text-decoration: line-through;
+    }
+
+    .product_number {
+      position: absolute;
+      right: 0;
+      bottom: .12rem;
+
+      &_minus, &_plus {
+        display: inline-block;
+        width: .2rem;
+        height: .2rem;
+        line-height: .18rem;
+        border-radius: 50%;
+        font-size: .2rem;
+        text-align: center;
+      }
+
+      &_minus {
+        border: .01rem solid $medium-fontColor;
+        color: $medium-fontColor;
+        margin-right: .05rem;
+      }
+
+      &_plus {
+        background-color: $btn-bgColor;
+        color: $bgColor;
+        margin-left: .05rem;
+      }
+    }
   }
 }
 </style>

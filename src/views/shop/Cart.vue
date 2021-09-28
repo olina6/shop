@@ -1,11 +1,19 @@
 <template>
   <div class="cart">
     <div class="product">
+      <div class="product_header">
+
+      </div>
       <template
         v-for="item in productList"
         :key="item._id"
       >
         <div class="product_item" v-if="item.count >0">
+          <div
+            class="product_item_checked iconfont"
+            v-html="item.check?'&#xe652;':'&#xe66c;'"
+            @click="() => { changeCartItemChecked(shopId, item._id)}">
+          </div>
           <img class="product_item_img" :src="item.imgUrl" alt=""/>
           <div class="product_item_detail">
             <h4 class="product_item_title">{{item.name}}</h4>
@@ -30,7 +38,7 @@
       </template>
     </div>
     <div class="check">
-      <div class="icon">
+      <div class="check_icon">
         <img
           src="http://www.dell-lee.com/imgs/vue3/basket.png"
           class="check_icon_img"
@@ -40,9 +48,7 @@
       <div class="check_info">
         Total: <span class="check_info_price">&#36;{{ price }}</span>
       </div>
-      <div class="check_btn">
-        Checkout
-      </div>
+      <div class="check_btn">Checkout</div>
     </div>
   </div>
 </template>
@@ -55,6 +61,7 @@ import { useCommonCartEffect } from '@/views/shop/commonCartEffect'
 
 // get cart information
 const useCartEffect = (shopId) => {
+  const { changeCartItemInfo } = useCommonCartEffect()
   const store = useStore()
   const cartList = store.state.cartList
 
@@ -76,7 +83,9 @@ const useCartEffect = (shopId) => {
     if (productList) {
       for (const i in productList) {
         const product = productList[i]
-        count += (product.count * product.price)
+        if (product.check) {
+          count += (product.count * product.price)
+        }
       }
     }
     return count.toFixed(2)
@@ -86,7 +95,11 @@ const useCartEffect = (shopId) => {
     const productList = cartList[shopId] || []
     return productList
   })
-  return { total, price, productList }
+
+  const changeCartItemChecked = (shopId, productId) => {
+    store.commit('changeCartItemChecked', { shopId, productId })
+  }
+  return { total, price, productList, changeCartItemInfo, changeCartItemChecked }
 }
 
 export default {
@@ -94,9 +107,8 @@ export default {
   setup () {
     const route = useRoute()
     const shopId = route.params.id
-    const { changeCartItemInfo } = useCommonCartEffect()
-    const { total, price, productList } = useCartEffect(shopId)
-    return { total, price, productList, shopId, changeCartItemInfo }
+    const { total, price, productList, changeCartItemInfo, changeCartItemChecked } = useCartEffect(shopId)
+    return { total, price, productList, shopId, changeCartItemInfo, changeCartItemChecked }
   }
 }
 
@@ -127,7 +139,7 @@ export default {
     }
     &_tag{
       position: absolute;
-      left: .15rem;
+      left: .45rem;
       top:.04rem;
       width: .2rem;
       height: .2rem;
@@ -136,8 +148,8 @@ export default {
       border-radius: 50%;
       font-size: .12rem;
       text-align: center;
-      color: #fff;
-      transform: scale(.65);
+      color: $bgColor;
+      transform: scale(.80);
     }
   }
   &_info{
@@ -154,7 +166,7 @@ export default {
     width: .98rem;
     background-color: #4fb0f9;
     text-align: center;
-    color:#fff;
+    color:$bgColor;
     font-size: .14rem;
   }
 }
@@ -169,6 +181,16 @@ export default {
     padding: .12rem 0;
     margin: 0 .16rem;
     border-bottom: .01rem solid $content-bgColor;
+    &_header{
+      height: .52rem;
+      border-bottom: 1px solid $content-bgColor ;
+    }
+    &_checked{
+      line-height: .5rem;
+      margin-right: .1rem;
+      color: #0091ff;
+      font-size: .2rem;
+    }
 
     &_img {
       margin-right: .16rem;

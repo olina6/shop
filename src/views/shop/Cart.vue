@@ -1,8 +1,23 @@
 <template>
+  <div class="mask" v-if="showCart" />
   <div class="cart">
-    <div class="product">
+    <div class="product" v-if="showCart">
       <div class="product_header">
-
+        <div
+          class="product_header_all"
+          @click="()=>setCartItemsAllSelected(shopId)"
+        >
+          <span
+            class="product_header_icon iconfont"
+            v-html="allSelected?'&#xe652;':'&#xe66c;'"
+          >
+          </span>
+          Select All
+        </div>
+        <div
+          class="product_header_clear"
+          @click="() => clearCartItems(shopId)"
+        >Clear All</div>
       </div>
       <template
         v-for="item in productList"
@@ -28,7 +43,7 @@
             class="product_number_minus"
             @click="() => { changeCartItemInfo(shopId,item._id,item, -1) }"
           >-</span>
-            {{item.count || 0}}
+            {{cartList?.[shopId]?.[item._id]?.count || 0}}
             <span
               class="product_number_plus"
               @click="() => { changeCartItemInfo(shopId,item._id,item,1) }"
@@ -42,6 +57,7 @@
         <img
           src="http://www.dell-lee.com/imgs/vue3/basket.png"
           class="check_icon_img"
+          @click="handleCartShow"
         />
         <div class="check_icon_tag">{{total}}</div>
       </div>
@@ -54,7 +70,7 @@
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 import { useCommonCartEffect } from '@/views/shop/commonCartEffect'
@@ -91,6 +107,20 @@ const useCartEffect = (shopId) => {
     return count.toFixed(2)
   })
 
+  const allSelected = computed(() => {
+    const productList = cartList[shopId]
+    let result = true
+    if (productList) {
+      for (const i in productList) {
+        const product = productList[i]
+        if (product.count > 0 && !product.check) {
+          result = false
+        }
+      }
+    }
+    return result
+  })
+
   const productList = computed(() => {
     const productList = cartList[shopId] || []
     return productList
@@ -99,7 +129,15 @@ const useCartEffect = (shopId) => {
   const changeCartItemChecked = (shopId, productId) => {
     store.commit('changeCartItemChecked', { shopId, productId })
   }
-  return { total, price, productList, changeCartItemInfo, changeCartItemChecked }
+
+  const clearCartItems = (shopId) => {
+    store.commit('clearCartItems', { shopId })
+  }
+
+  const setCartItemsAllSelected = (shopId) => {
+    store.commit('setCartItemsAllSelected', { shopId })
+  }
+  return { total, price, productList, changeCartItemInfo, changeCartItemChecked, clearCartItems, cartList, allSelected, setCartItemsAllSelected }
 }
 
 export default {
@@ -107,8 +145,12 @@ export default {
   setup () {
     const route = useRoute()
     const shopId = route.params.id
-    const { total, price, productList, changeCartItemInfo, changeCartItemChecked } = useCartEffect(shopId)
-    return { total, price, productList, shopId, changeCartItemInfo, changeCartItemChecked }
+    const showCart = ref(false)
+    const handleCartShow = () => {
+      showCart.value = !showCart.value
+    }
+    const { total, price, productList, changeCartItemInfo, changeCartItemChecked, clearCartItems, cartList, allSelected, setCartItemsAllSelected } = useCartEffect(shopId)
+    return { total, price, productList, shopId, changeCartItemInfo, changeCartItemChecked, clearCartItems, cartList, allSelected, setCartItemsAllSelected, showCart, handleCartShow }
   }
 }
 
@@ -117,11 +159,22 @@ export default {
 <style lang="scss" scoped>
 @import "src/style/variables.scss";
 @import "src/style/mixins.scss";
+.mask{
+  position: fixed;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 1;
+}
 .cart{
   position: absolute;
   right: 0;
   left: 0;
   bottom: 0;
+  z-index: 2;
+  background: $bgColor;
 }
 .check{
   display: flex;
@@ -174,17 +227,33 @@ export default {
   overflow-y: scroll;
   flex: 1;
   background: $bgColor;
-
+  &_header{
+    display: flex;
+    height: .52rem;
+    border-bottom: 1px solid $content-bgColor ;
+    font-size: .14rem;
+    color: $content-fontcolor;
+    &_all{
+      width: .64rem;
+      margin-left: .18rem;
+    }
+    &_icon{
+      display: inline-block;
+      color: #0091ff;
+      font-size: .2rem;
+    }
+    &_clear{
+      flex: 1;
+      margin-right: .16rem;
+      text-align: right;
+    }
+  }
   &_item {
     position: relative;
     display: flex;
     padding: .12rem 0;
     margin: 0 .16rem;
     border-bottom: .01rem solid $content-bgColor;
-    &_header{
-      height: .52rem;
-      border-bottom: 1px solid $content-bgColor ;
-    }
     &_checked{
       line-height: .5rem;
       margin-right: .1rem;

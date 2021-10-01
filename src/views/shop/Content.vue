@@ -31,8 +31,7 @@
             class="product_number_minus"
             @click="() => { changeCartItemInfo(shopId,item._id,item, -1) }"
           >-</span>
-<!--          {{cartList?.[shopId]?.[item._id]?.count || 0}}-->
-          {{item.count || 0}}
+          {{cartList?.[shopId]?.[item._id]?.count || 0}}
           <span
             class="product_number_plus"
             @click="() => { changeCartItemInfo(shopId,item._id,item,1) }"
@@ -66,7 +65,6 @@ const useTabEffect = () => {
 // logic -- content of list
 const useCurrentListEffect = (currentTab, shopId) => {
   const content = reactive({ list: [] })
-
   // Get list content
   const getContentData = async (tab) => {
     const result = await get(`/api/shop/${shopId}/products`, {
@@ -98,8 +96,8 @@ export default {
     const shopId = route.params.id
     const { currentTab, handleTabClick } = useTabEffect()
     const { list } = useCurrentListEffect(currentTab, shopId)
-    const { changeCartItemInfo } = useCommonCartEffect()
-    return { list, categories, currentTab, shopId, handleTabClick, changeCartItemInfo }
+    const { changeCartItemInfo, cartList } = useCommonCartEffect()
+    return { list, categories, currentTab, shopId, handleTabClick, changeCartItemInfo, cartList }
   }
 }
 </script>
